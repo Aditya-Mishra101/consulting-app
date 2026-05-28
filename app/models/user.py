@@ -1,8 +1,8 @@
-from db.base import Base
-from sqlalchemy import Column, String, Enum
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship
-from uuid import uuid4
+from app.db.base import Base
+from sqlalchemy import String, Enum,UUID
+from datetime import datetime, timezone
+import uuid
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 import enum
 
 
@@ -12,30 +12,43 @@ class UserRole(str, enum.Enum):
     admin      = "admin"
 
 class User(Base):
-    """
-    Core identity table.
-    Stores all platform users — clients, consultants, and admins.
-    """
     __tablename__ = "users"
 
-    id         = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    name       = Column(String(120), nullable=False)
-    email      = Column(String, unique=True, nullable=False)
-    role       = Column(Enum(UserRole, name="user_role"), nullable=False)
-    created_at = Column(TIMESTAMPTZ, nullable=False, server_default=func.now())
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4
+    )
 
-    consultations_as_client = relationship(
+    name: Mapped[str] = mapped_column(String(50), nullable=False)
+
+    email: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
+
+    password: Mapped[str] = mapped_column(String, nullable=False)
+
+    role: Mapped[UserRole] = mapped_column(
+        Enum(UserRole, name="user_roles"),
+        nullable=False
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False
+    )
+
+    client_consultations = relationship(
         "Consultation",
         foreign_keys="Consultation.client_id",
-        back_populates="client",
+        back_populates="client"
     )
- 
-    consultations_as_consultant = relationship(
+
+    consultant_consultations = relationship(
         "Consultation",
         foreign_keys="Consultation.consultant_id",
-        back_populates="consultant",
+        back_populates="consultant"
     )
-    chat_messages = relationship("ChatMessage", back_populates="user")
 
-    def __repr__(self) -> str:
-        return f"<User id={self.id} email={self.email!r} role={self.role}>"
+    messages = relationship(
+        "ChatMessage",
+        back_populates="user"
+    )

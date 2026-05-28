@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Consulting Platform Backend
 
 Production-style monolithic backend service for a consulting marketplace platform.
@@ -188,5 +187,3 @@ Possible fields:
 - content
 - created_at
 =======
-# consulting-app
->>>>>>> 1fdbe5157115d59751f9c9a0dffdaa392b497468

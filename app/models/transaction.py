@@ -1,10 +1,13 @@
+from uuid import UUID
+
+
 from decimal import Decimal
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import ForeignKey, UUID,Enum 
+from typing import Optional
+from sqlalchemy.orm import Mapped, mapped_column,relationship
+from sqlalchemy import ForeignKey, UUID,Enum, Numeric,String,DateTime
 from app.db.base import Base 
-from sqlalchemy import DateTime
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime
 import enum
 
 
@@ -34,21 +37,23 @@ class Transaction(Base):
     )
 
     amount : Mapped[Decimal] = mapped_column(
-        Decimal(10,2),
+        Numeric(10,2),
         nullable=False
         )
     
     currency : Mapped[str] = mapped_column(
+        String(3),
         nullable=False,
         default="USD"
         )
     
     status : Mapped[TransactionStatus] = mapped_column(
         Enum(TransactionStatus, name="transaction_status"),
-        nullable=False
+        nullable=False,
+        default=TransactionStatus.pending
         )
 
-    paid_at :Mapped[datetime] = mapped_column(
+    paid_at :Mapped[Optional[datetime]] = mapped_column(
           DateTime(timezone=True),
-          nullable=False
+          nullable=True
      )

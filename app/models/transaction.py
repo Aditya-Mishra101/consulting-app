@@ -1,6 +1,3 @@
-from uuid import UUID
-
-
 from decimal import Decimal
 from typing import Optional
 from sqlalchemy.orm import Mapped, mapped_column,relationship
